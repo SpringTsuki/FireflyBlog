@@ -15,8 +15,7 @@ export const siteConfig: SiteConfig = {
 	site_url: "https://springtsuki.xucjno.com",
 
 	// 站点描述
-	description:
-		"浅月的个人小窝",
+	description: "浅月的个人小窝",
 
 	// 站点关键词
 	keywords: [
