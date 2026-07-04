@@ -34,7 +34,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	});
 
 	// 友链
-	links.push(LinkPresets.Friends);
+	//links.push(LinkPresets.Friends);
 
 	// 留言板
 	links.push(LinkPresets.Guestbook);
@@ -49,10 +49,10 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			LinkPresets.Gallery,
 
 			// 追番
-			LinkPresets.Anime,
+			//LinkPresets.Anime,
 
 			// 番组计划
-			LinkPresets.Bangumi,
+			//LinkPresets.Bangumi,
 		],
 	});
 
@@ -63,7 +63,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		icon: "material-symbols:info",
 		children: [
 			// 打赏
-			LinkPresets.Sponsor,
+			//LinkPresets.Sponsor,
 
 			// 关于页面
 			LinkPresets.About,
@@ -71,6 +71,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	});
 
 	// 自定义导航栏链接
+	/*
 	links.push({
 		name: "链接",
 		url: "#",
@@ -103,6 +104,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			},
 		],
 	});
+	*/
 
 	// 文档链接
 	// links.push({

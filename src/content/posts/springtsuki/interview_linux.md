@@ -5,75 +5,58 @@ description: 目前做了Linux相关
 tags: [运维, Linux]
 category: 运维
 ---
-
-# 面试部分
-
 ## 1. Linux 面试题
 
 ### 1. 如何实时查看所有的系统内存进程？如果想把内存占用前十的进程保存到文件里，应如何操作？
-
-
 ```bash
 ps aux --sort=-%mem | head -10 > mem_top10.log
-ps aux 用于列出所有用户的全部进程，a 表示终端的所有进程，x 包含无终端的后台进程，--sort=-%mem 按内存使用率降序，减号表示从高到底。head -10 指的是前10行，最后用重定向保存到文件即可。
 ```
+ps aux 用于列出所有用户的全部进程，a 表示终端的所有进程，x 包含无终端的后台进程，--sort=-%mem 按内存使用率降序，减号表示从高到底。head -10 指的是前10行，最后用重定向保存到文件即可。
 
 ### 2. 如果有一个大文件需要快速提取出包含 error 的最后100行，如何操作？
-
-
-`tail -n 10000 logs | grep "error" | tail -n 100`
-
+```bash
+tail -n 10000 logs | grep "error" | tail -n 100`
+```
 先取10000行缩小范围，使用 -n 取出最后的10000行，避免程序加载整个大文件运行，可以大幅提升效率。
 
 ### 3. 如何新建用户配置 sudoers 达到无需 sudo 即可能重启 Nginx 的权限？
-
-
-`myuser ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx`
-
+```bash
+myuser ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx
+```
 使用 visudo 编辑 sudoer，本质上是需要是将：sudo systemctl restart nginx 中，去掉 sudo 也可以执行，所以只需要使用 user = ALL=(ALL) NOPASSWD 后添加指令即可。
 
 ### 4. 如果进程处于僵尸状态，且kill -9 杀不掉，要如何操作？
-
 僵尸进程指的是没有被父进程回收的一些子进程，通常使用 kill -9 是杀不掉的。   
-
-`ps aux | grep 找到父进程ID。杀掉父进程就可以了，如果是系统进程（例如 systemd 这种）只能重启系统回收。`
+```bash
+ps aux | grep 找到父进程ID。杀掉父进程就可以了，如果是系统进程（例如 systemd 这种）只能重启系统回收。`
+```
 
 ### 5. 如何监控磁盘整体使用率？
-
-
-`watch -n 5 du -sh /var/log`
-
+```bash
+watch -n 5 du -sh /var/log
+```
 使用 watch ，每隔五秒刷新一次，这里的话就是使用 du 检查 logs 下的磁盘占用。
 
 ### 6. 域名解析炸了如何排查
-
 /etc/resolv.conf 检查 DNS配置是否正确。
 
 ### 7*. 一些常用的包名
-
+```
 httpd：Apache
-
 MySQL：mariadb-server
-
 Nginx：nginx
-
 PHP：php
-
 FTP：vsftpd
-
-
+```
 有一些名字它加了 d，d 全称就是 deamon 的缩写，意思是守护进程。在后台中持续运行。
-
 守护进程：在后台长期运行，不需要用户直接交互的服务进程，例如 web服务，数据库这些就叫守护进程。
 
 ### 8. 如何实时查看 /logs/message 的最新内容？
-
-
-`tail -f /var/log/message`
+```bash
+tail -f /var/log/message
+```
 
 ### 9. 如何从本地上传文件至远程服务器？以及如何下载？
-
-
 ```bash
 # 上传
 scp uploadfile root@192.168.1.1:/tmp
@@ -83,8 +66,6 @@ scp -r root@192.168.1.1:/var/downloadfile ~/download
 ```
 
 ### 10. 如何创建用户并设置密码
-
-
 ```bash
 # 创建用户
 useradd newuser
@@ -95,28 +76,23 @@ echo "123456" | passwd --stdin newsuer
 ```
 
 ### 11. 如何快速强制删除用户，且包含 home 目录
-
-
-`userdel -r user`
+```bash
+userdel -r user
+```
 
 ### 12. 如何将文件的所有者改成 user 用户？所属组改成 user 组？
-
-
-`chown user:user file`
+```bash
+chown user:user file
+```
 
 ### 13. chmod是什么？
-
 用于修改所有者的权限，三个数字的权限符号分别表示：所有者、同组者、其他用户。
-
 rwx 对应 421，对所有者加执行权限。
 
 ### 14. 如果要让 text.sh 脚本在任何目录下都能直接执行，不用写完整路径应如何做？
-
 直接放到 /usr/local/bin 目录下，或者是加到 PATH 变量里。
 
 ### 15. kill 的常见参数如何？
-
-
 ```bash
 kill -1 # 重新加载配置
 kill -15 # 正常终止进程
@@ -124,18 +100,16 @@ kill -9 # 强制终止进程
 ```
 
 ### 16. 如何查看CPU的占用率？
-
-
-`top # 打开CPU查看占用率`
-
+```bash
+top # 打开CPU查看占用率
+```
 p # 按一下 P 继续拿降序排序
 
-
-`ps aux --sort=-%cpu`
+```bash
+ps aux --sort=-%cpu
+```
 
 ### 17. 如何后台运行一个脚本？如何关闭这种后台脚本？
-
-
 ```bash
 nohup run.sh
 ps aux | grep run.sh
@@ -143,15 +117,10 @@ kill run.sh
 ```
 
 ### 18*. 如何查看当前系统放行的所有端口？netstat 的用法详解
-
-
 ```bash
 # 查看系统当前的放行端口
 netstat -tulnp
 ```
-
-
-
 
 ```bash
 # 查看 8080 端口的方法
@@ -160,80 +129,54 @@ netstat -tulnp | grep :8080
 
 参数解析
 
--t TCP
-
--u UDP
-
--l 只列出处于 LISTEN 监听状态 的端口
-
--n 不解析域名、不解析端口别名，直接显示 IP + 数字端口
-
--p 显示占用该端口的进程 PID 和程序名
-
-### 19. 如何配置定时任务？
-
-crontab 配置定时脚本。
-
-例如：如果需要写一个 shell，定时做日志备份。
-
-技术栈：find + tar + crontab
-
-那么就用 find 找到符合状态的日志，使用 tar 进行打包。而定时执行 Shell 的方法就是使用 crontab。
-
-
-`* * * * * command`
-
-│ │ │ │ │
-
-│ │ │ │ └── 星期几（0-7，0和7都表示周日）
-
-│ │ │ └──── 月份（1-12）
-
-│ │ └────── 日（1-31）
-
-│ └──────── 小时（0-23）
-
-└────────── 分钟（0-59）
-
-### 20. tail 是什么，它常用的使用场景有哪些？语法如何？
-
 ```bash
-tail 是一个非常实用的命令行工具，主要用于查看文件末尾的内容。在日常运维和开发中，它尤其适合处理日志文件。常用参数如下：
-
-tail -n 50 access.log
+-t # TCP
+-u # UDP
+-l # 只列出处于 LISTEN 监听状态 的端口
+-n # 不解析域名、不解析端口别名，直接显示 IP + 数字端口
+-p # 显示占用该端口的进程 PID 和程序名
 ```
 
--n <行数>        显示文件末尾指定的行数（默认是10行）。
+### 19. 如何配置定时任务？
+crontab 配置定时脚本。
+例如：如果需要写一个 shell，定时做日志备份。
+技术栈：find + tar + crontab
+那么就用 find 找到符合状态的日志，使用 tar 进行打包。而定时执行 Shell 的方法就是使用 crontab。
 
-`tail -f /var/log/syslog`
+```bash
+* * * * * command
+│ │ │ │ │
+│ │ │ │ └── 星期几（0-7，0和7都表示周日）
+│ │ │ └──── 月份（1-12）
+│ │ └────── 日（1-31）
+│ └──────── 小时（0-23）
+└────────── 分钟（0-59）
+```
 
--f        实时跟踪文件新增内容。通常在排查问题时保持这个命令运行，观察新日志。
+### 20. tail 是什么，它常用的使用场景有哪些？语法如何？
+tail 是一个非常实用的命令行工具，主要用于查看文件末尾的内容。在日常运维和开发中，它尤其适合处理日志文件。常用参数如下：
+```bash
+# 显示文件末尾指定的行数（默认是10行）。
+tail -n 50 access.log
 
+# 实时跟踪文件新增内容。通常在排查问题时保持这个命令运行，观察新日志。
+tail -f /var/log/syslog
 
-`tail -F messages`
+# 功能与 -f 类似，但如果文件被重命名或轮转（比如日志切割），-F 仍然能继续跟踪新的同名文件。
+tail -F messages
 
--F        功能与 -f 类似，但如果文件被重命名或轮转（比如日志切割），-F 仍然能继续跟踪新的同名文件。
+# 如果同时查看多个文件，可以隐藏文件名头，让输出更干净。
+tail -q file1.txt file2.txt
 
+# 无论查看几个文件，都强制显示文件名头。
+tail -v access.log error.log
 
-`tail -q file1.txt file2.txt`
-
--q        如果同时查看多个文件，可以隐藏文件名头，让输出更干净。
-
-
-`tail -v access.log error.log`
-
--v        无论查看几个文件，都强制显示文件名头。
-
-
-`tail -c 1000 data.log`
-
--c <字节数>        显示文件末尾指定的字节数，通常用得较少。
+# 显示文件末尾指定的字节数，通常用得较少。
+tail -c 1000 data.log
+```
 
 ### 21. iptables怎么设置只放行某个ip的访问？
-
 记住思路就好，首先要把所有的流量访问全部drop，其次建立一个优先级比它高的规则放行指定 tcp ip 的访问。
-
-
 ```bash
 # 1. 清空现有规则（谨慎操作，建议在测试环境或通过带外管理执行）
 iptables -F
@@ -255,16 +198,12 @@ iptables -A INPUT -p icmp -j ACCEPT
 ```
 
 ### 22. 如何查看文件的绝对路径？
-
-
 ```bash
 realpath filename
 # 简单又直接
 ```
 
 ### 23. 如何查看文件的所有者？
-
-
 ```bash
 ls -l
 # 当然，如果你需要查看指定文件的话，加一个 grep 就好了
@@ -272,8 +211,6 @@ ls -l | grep log.log
 ```
 
 ### 24. 如何查看系统运行了多久？
-
-
 ```bash
 uptime
 # 简单直接
@@ -284,18 +221,13 @@ uptime 三个 load average 含义
 
 ### 25. 监控 CPU 的 top 指令详解
 
-### 1. Linux 平均负载（load average）是什么？三个数值高低分别代表什么情况？
-
+#### 1. Linux 平均负载（load average）是什么？三个数值高低分别代表什么情况？
 load average 反映的是系统在特定时间段内的平均活跃进程数，包括正在运行和等待CPU的进程。对于多核系统，需要将数值除以核心数来理解。例如，4核系统负载为4.0，相当于每个核心跑满。我通常会对比1分钟、5分钟和15分钟三个数值，来判断负载趋势。如果负载持续高于核心数，我会用 top 或 ps 定位具体进程，判断是CPU瓶颈还是IO瓶颈，再针对性处理。
 
-### 2. top 的使用规则
-
-
-`top`
-
+#### 2. top 的使用规则
 按下快捷键 数字 1，就能展开看到每一颗 CPU 核心的单独使用率，再按一次 1 又会合并回总 CPU 视图。
 
-### 3. 快捷键总结
+#### 3. 快捷键总结
 
 P：按 CPU 使用率排序
 
@@ -305,7 +237,7 @@ k：输入 PID 杀死指定进程
 
 q：退出 top
 
-### 4. %us、%sy、%id、%wa 分别代表什么含义？
+#### 4. %us、%sy、%id、%wa 分别代表什么含义？
 
 %us（用户空间 CPU 占用率）：好比 厨师实际在做菜的时间。这是应用程序（Python、Nginx、MySQL）真正在执行计算指令的时间。数值高通常意味着你的应用逻辑本身很复杂，是计算密集型任务，CPU 正在卖力工作，这是硬件瓶颈的信号。
 
@@ -318,7 +250,7 @@ q：退出 top
 
 记忆方法：us（正在占用）、system（内核调度）、id（空闲时段）、wating（IO等待）
 
-### 5. 进程状态 R、S、D、Z、T 分别代表什么？
+#### 5. 进程状态 R、S、D、Z、T 分别代表什么？
 
 Running：正在运行或等待CPU调度的进程。进程要么正在CPU上执行，要么在运行队列中等待。
 

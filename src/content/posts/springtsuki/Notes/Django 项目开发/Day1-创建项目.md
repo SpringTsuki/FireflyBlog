@@ -1,0 +1,332 @@
+---
+title: Django项目开发 - 创建项目
+published: 2025-04-07
+description: Django 项目创建
+tags: [Python, 后端, Web]
+category: Python
+---
+
+# Day1 创建项目
+
+#### 0. 项目规划
+
+同时也可以规划一个简单的项目架构。那么这次就开发一个简易的留言板吧！
+
+
+
+前端使用 Vue.js 构建、后端使用 Django 构建、数据库使用 MySQL 即可。
+
+那么前端的话就稍微简单些，无需登录，只需要输入留言者姓名，同时再输入消息即可完成发送。
+
+同时为了 SQL 的主键问题，这里再额外创建一个 ID 列表示 留言 的ID。
+
+
+
+那么表一（qynet_msg）就出现了：id（主键）、msg_name（str）、msg_body（str）
+
+
+
+而后，我们需要一个管理员账户用于管理留言板上的具体内容。还额外需要做一个 session ，用于管理登陆权限。
+
+需要一个额外的表格二（qynet_user）用于储存管理员权限的身份验证。
+
+同样的，需要一个 id 作为主键，需要用户名和密码进行管理，那么再为用户设置一个名字吧！
+
+总结下，就长这样：id（主键）、admin_name（str）、admin_user（varchar）、admin_password（varchar）
+
+
+
+很好！那么规划完成了，接下来就是创建项目了！
+
+
+
+#### 1. Django 项目创建
+
+创建完毕后，记得先导出一份项目所需的包！
+
+```bash
+pip freeze > requirements.txt
+```
+
+导出了一个 txt 文件，内部就是本项目所需安装的包体啦！
+
+```python
+asgiref==3.8.1
+Django==4.2.20
+sqlparse==0.5.3
+typing_extensions==4.13.2
+tzdata==2025.2
+```
+
+同时这里也复习一下，不要忘记 Django 项目目录下每个文件都是做什么的哦！
+
+##### 1. 项目根目录（通常是项目的顶层目录）
+
+通常包含以下文件和文件夹：
+
+- **`manage.py`**：Django 项目的管理工具。你可以通过它执行一些常用命令，如启动开发服务器、创建数据库表、创建应用等。通过 `python manage.py` 可以运行命令。
+- **`db.sqlite3`**（如果使用 SQLite 数据库）：Django 默认的数据库文件（如果你选择了 SQLite 作为数据库）。如果你使用其他数据库（如 MySQL 或 PostgreSQL），则不会看到这个文件，而是通过配置文件连接数据库。
+- **`requirements.txt`**：列出项目所需的 Python 包（如果你使用 `pip freeze` 生成的话）。这个文件方便其他开发者或部署系统安装所有必需的依赖包。
+- **`settings.py`**（通常在项目文件夹中）：Django 项目的设置文件，包含数据库配置、调试模式、应用的安装配置等内容。它是 Django 项目最核心的配置文件。
+- **`urls.py`**（通常在项目文件夹中）：Django 项目的 URL 路由配置文件，定义了不同的 URL 与视图函数之间的映射关系。
+- **`wsgi.py`**：用于部署项目的文件。WSGI 是一种 Web 服务器网关接口（Web Server Gateway Interface），它使得 Django 可以与 Web 服务器（如 Apache、Nginx 等）进行通信。此文件通常用于生产环境。
+- **`asgi.py`**：用于支持异步通信的 WSGI 替代方案。主要是为了支持 WebSocket 和其他异步功能（如 Channels）。
+
+##### 2. 应用文件夹（通常在项目中有多个这样的文件夹）
+
+每个 Django 应用（App）都会有自己的文件夹，通常包含以下内容：
+
+- **`migrations/`**：该文件夹保存与数据库模型相关的迁移文件。当你对数据库模型进行更改时，Django 会生成迁移文件来描述这些更改（如添加、删除字段等）。
+- **`models.py`**：定义数据库模型的文件。Django ORM 会根据这个文件中定义的模型自动创建数据库表。
+- **`views.py`**：定义视图函数的文件。视图是处理用户请求并返回响应的函数。它通常与模板和表单结合使用。
+- **`urls.py`**：该应用特有的 URL 路由文件。它用于为该应用的视图函数定义路由，并将其映射到 URL 模式。
+- **`admin.py`**：该文件用于为应用的模型生成 Django 管理界面的配置。在这个文件中，你可以注册模型，使得它们出现在 Django 管理后台。
+- **`tests.py`**：该文件包含应用的测试代码。你可以在其中编写单元测试，确保应用的功能按预期工作。
+- **`apps.py`**：包含应用配置的文件。它定义了应用的配置类，通常用于启用一些自定义行为。
+- **`static/`**：存放静态文件（如图片、CSS、JavaScript 文件）的文件夹。Django 会将其提供给客户端浏览器。
+- **`templates/`**：存放 HTML 模板的文件夹。Django 使用模板系统将数据动态渲染到 HTML 页面中。
+- **`forms.py`**（可选）：存放与表单相关的代码。你可以在这个文件中定义表单类，并对表单进行验证。
+
+##### 3. 静态和模板文件夹
+
+- **`static/`**：用于存放静态文件，如 CSS 文件、JavaScript 文件、图片等。通过配置，Django 会自动查找这些文件，并把它们提供给用户的浏览器。
+- **`templates/`**：用于存放 HTML 模板文件。Django 使用 Jinja2 模板引擎或默认的模板引擎来渲染 HTML 内容，生成最终的网页。
+
+##### 4. 配置文件
+
+- **`settings.py`**：包含整个项目的设置，包括数据库配置、安装的应用程序、日志设置、模板设置等。
+- **`urls.py`**：全局路由文件，用于定义项目中的所有 URL 映射。
+- **`wsgi.py` 和 `asgi.py`**：用于部署的接口文件，分别用于同步（WSGI）和异步（ASGI）应用程序的部署。
+
+##### 5. 管理命令
+
+- **`manage.py`**：这是 Django 项目中的命令行工具，可以帮助你执行很多常见的开发任务，如创建数据库表、启动开发服务器等。
+
+##### 6. 其他常见文件
+
+- **`__init__.py`**：通常出现在应用文件夹中，它表明该文件夹是一个 Python 包。该文件夹中的模块可以被 Python 解释器识别和导入。
+
+
+
+那么就先从尝试引入前端的页面开始吧！
+
+**因为项目创建时默认会直接协助创建一个应用，为了静态文件与模板文件不与其他项目混淆，所以我们在项目目录下创建一个新的tem文件夹与static文件夹！**
+
+
+
+#### 2. 创建应用
+
+```bash
+python manage.py startapp <myapp>
+```
+
+使用 manage 创建一个新的应用吧！
+
+由于我们要前后端分离开发，所以我们需要创建两个应用（一个负责前端页面的展示，另一个负责后端与数据库的交互与数据处理）
+
+```
+python manage.py startapp frontend
+python manage.py startapp backend
+```
+
+一个前端，一个后端！
+
+以及不要忘记将应用添加到 Django 主项目中哦 ...
+
+需要修改主目录下的 settings.py
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # 注册的应用
+    'frontend',
+    'backend'
+]
+```
+
+
+
+#### 3.连接第一个网页
+
+那么是时候连接前端的页面了，拿出准备好的 Vue.js 文件，并在应用目录下创建一个 static 文件夹。
+
+将其置入 js 文件里，以便于后续引用。而后将模板文件置于前端页面即可。
+
+
+
+先做一个测试页面吧！
+
+首先我们需要在 frontend 下，创建一个 urls.py 的文件，以便于做前端静态模板的路由。
+
+而后在 views.py 里，就可以具体写入功能了。
+
+
+
+views.py
+
+```python
+from django.http import HttpResponse
+
+
+# Create your views here.
+def home(request):
+    print("Test")
+    return HttpResponse("Hello World")
+```
+
+那么就从返回一个 HTTP 请求开始吧！
+
+
+
+urls.py
+
+```python
+from frontend import views
+from django.urls import path
+
+# 设置 frontend 的路由
+urlpatterns = [
+    path('', views.home, name='home')
+]
+```
+
+
+
+现在需要回到主应用，因为需要完成路由还需要 include 一下 frontend 里的 urls.py 。
+
+qynet_msg/urls.py
+
+```python
+from django.contrib import admin
+from django.urls import path
+from django.urls import include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # 引入 frontends 应用的路由
+    path('', include('frontend.urls'))
+]
+```
+
+
+
+启动即可看到 Hello World 的字样啦！那么进一步的，要如何引入静态页面呢？
+
+因为先前我们在应用目录下各创建一个 tem 与 static 文件夹，那么现在就要在 settings.py 中进行配置了。
+
+```python
+# 指定静态文件存放目录
+STATIC_URL = '/static/'
+
+# 设置静态文件目录，Django 默认会从这个目录查找静态文件
+STATICFILES_DIRS = [
+    BASE_DIR / "/frontend/static",  # 例如你可以在项目根目录创建一个 `static` 文件夹
+]
+```
+
+
+
+配置完毕后，即可在 HTML 模板里引入 js 等静态文件（需要用到 {% static %} 标签，以便于正确访问目录）
+
+```html
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="{% static 'js/vue.global.js' %}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js test</title>
+</head>
+
+<script>
+    window.onload = function () {
+        console.log("Vue script loaded");
+        const HelloVueApp = {
+            data() {
+                return {
+                    message: 'Hello Vue!!'
+                }
+            }
+        }
+        Vue.createApp(HelloVueApp).mount('#app')
+        console.log('Vue app:', HelloVueApp);
+        console.log("Vue script mounted successfully");
+    }
+
+</script>
+
+<body>
+    <div id="app">
+        {% verbatim %}
+        <p>{{ message }}</p>
+        {% endverbatim %}
+    </div>
+</body>
+
+</html>
+```
+
+创建了一个 html 页面！并配置使用本地的 vue.js 文件进行访问。现在回到应用的 views.py ，要正式引用模板文件啦！
+
+```python
+def home(request):
+    print("Test")
+    # return HttpResponse("Hello World")
+    
+    # 引入页面文件
+    return render(request, 'index.html')
+```
+
+**> :warning:特别提醒：在 Django 中双花括号是有意义的，所以与 Vue 中的双花括号冲突。**
+
+**> :warning:故需要使用 {% verbatim %} {% endverbatim %} 进行覆盖，才会保证 {{ message }} 不会被 Django 处理。**
+
+```html
+<body>
+    <div id="app">
+        {% verbatim %}
+        <p>{{ message }}</p>
+        {% endverbatim %}
+    </div>
+</body>
+```
+
+
+
+#### 4. 前后端分离
+
+由于这种开发实际上依旧是由后端渲染的页面，并非使用 API 模式进行交互，所以为了前后端分离，要进一步安装 Node.js，并使用 axios 进行 HTTP 请求才可以！
+
+先安装 Node.js 吧！
+
+```
+https://nodejs.org/en/download
+```
+
+而后需要安装 Axios 的运行库！以及还需要安装 django-rest-framework ，让 Django 可以进行 API 交互。
+
+```bash
+npm install axios
+```
+
+```python
+# 虚拟环境下
+pip install django-rest-framework
+```
+
+推荐使用淘宝的 cnpm 命令行工具代替默认的 npm。顺便使用cnpm安装vue-cli脚手架工具（vue-cli是官方脚手架工具，能迅速帮你搭建起vue项目的框架）：
+
+（先别急 装不上了 草 歇一歇）
+
+```
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+cnpm install -g vue-cli
+```
+
