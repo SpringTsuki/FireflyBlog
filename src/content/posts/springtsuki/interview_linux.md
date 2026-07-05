@@ -445,36 +445,55 @@ def execute_ssh(host, user, key_path, command):
 
 ### 2. 一般来说，常用的运维 Python 库都有哪些？
 系统监控与资源管理：
+
 psutil：堪称运维的"瑞士军刀"，跨平台，能轻松获取 CPU、内存、磁盘、网络等系统信息。相当于在 Python 里集成了 ps、top、netstat 等命令。
+
 subprocess：Python 自带的标准库，用于执行系统命令并获取输出，是编写自动化脚本的基础。
+
 shutil 和 os / pathlib：同样是标准库，shutil 用于高级文件操作（复制、移动、删除），os 和 pathlib 负责目录和路径管理。
 
 🤖 远程连接与自动化
+
 paramiko：SSH 连接的底层实现，可以让你在 Python 中直接建立 SSH 连接。所有远程操作的基础，比如批量登录服务器执行命令或传输文件。
+
 fabric：在 paramiko 之上进行了更高层的封装，能让你用更简洁的代码执行远程命令和部署任务。
+
 pexpect：用于自动化那些需要交互的命令行程序（如 ssh, ftp, telnet），可以模拟输入密码等交互过程。
 
 📊 配置、日志与数据处理
+
 logging：Python 自带的日志模块，用于记录脚本运行状态，是运维脚本的标配。
+
 PyYAML：处理 YAML 格式的配置文件，在解析 Kubernetes、Ansible 等工具的配置时非常常用。
+
 pandas：数据分析库，当需要从大量监控数据或日志中提取、清洗、分析信息并生成报表时，这个库非常高效。
+
 re：正则表达式库，用于从非结构化的文本（如日志）中提取特定信息。
 
 🌐 网络与 API 交互
+
 requests：处理 HTTP 请求的标准库，用来调用各种 REST API。无论是调用云厂商 API 还是发送告警，都离不开它。
+
 socket：进行底层网络操作，比如编写简单的端口扫描或状态检测脚本。
+
 dnspython：一个 DNS 工具包，可用于实现 DNS 解析等功能。
+
 IPy：辅助进行 IP 地址规划和管理。
 
 🐳 容器与编排
+
 docker (或 docker-py)：官方 Docker SDK，用于在 Python 中管理容器、镜像等。
+
 kubernetes：官方 Kubernetes 客户端，用于管理 Pod、Service 等 K8s 资源。
 
 🚀 任务调度与并发
+
 schedule：一个轻量级的定时任务调度库，可以在 Python 脚本内部实现类似 crontab 的功能。
+
 threading / multiprocessing：Python 自带的多线程和多进程库，用于提升批量任务的处理效率。
 
 🛠️ DevOps 专用与自动化框架
+
 Ansible：一个完整的自动化工具，通过 SSH 执行任务。你甚至可以用 ansible-runner 在 Python 中直接调用它的 Playbook。
 
 ## EX+：最近的一些运维可能会用到的知识
