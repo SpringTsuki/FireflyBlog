@@ -256,6 +256,10 @@ Get-ADGroupMember -Identity "目标组" -Recursive
 
 whoami /groups
 
+# 查看客户端现有的票据和 SMB 连接
+klist
+net use
+
 # 在文件服务器上查询共享 ACL
 Get-SmbShareAccess -Name "ShareName"
 
@@ -266,7 +270,7 @@ Get-Acl "D:\Shares\ShareName" |
 repadmin /replsummary
 ```
 
-`gpupdate /force` 不会重新生成用户登录令牌。用户在登录后才被加入组时，最可靠的验证方法仍然是注销并重新登录。
+`Get-SmbSession` 和 `Get-SmbOpenFile` 查询的是会话与打开文件，不是共享 ACL。`gpupdate /force` 和 `klist purge` 都不会重新生成用户的桌面登录令牌。用户在登录后才被加入组时，最可靠的验证方法仍然是注销并重新登录；旧 SMB 连接还应在关闭文件后重新建立。
 
 ## 四、AD 复制错误 1722：RPC 服务器不可用
 
@@ -292,12 +296,16 @@ Test-NetConnection QYNET-CORE02 -Port 135
 Test-NetConnection QYNET-CORE02 -Port 389
 Test-NetConnection QYNET-CORE02 -Port 445
 
+Get-Service -ComputerName QYNET-CORE02 `
+    -Name RpcSs,RpcEptMapper,Netlogon,NTDS,KDC,DNS
+
 dcdiag /s:QYNET-CORE02 /test:Connectivity /v
 dcdiag /s:QYNET-CORE02 /test:DNS /DnsBasic /v
+dcdiag /s:QYNET-CORE02 /test:Replications /v
 repadmin /showrepl QYNET-CORE02 /verbose
 ```
 
-Ping 失败可能只是 ICMP 被阻止；Ping 成功也不能证明 TCP 135 和协商出的 RPC 动态端口可用。
+Ping 使用 ICMP，不存在“Ping 端口”。Ping 失败可能只是 ICMP 被阻止；Ping 成功也不能证明 TCP 135 和协商出的 RPC 动态端口可用。完成修复后必须重新执行 `repadmin /replsummary` 和 `/showrepl`，并核对 System、Directory Service、DNS Server 与 DFS Replication 日志。
 
 ## 五、计算机能够登录域，但没有应用预期 GPO
 
@@ -333,6 +341,47 @@ gpresult /Scope Computer /H "C:\Temp\Computer-GPO.html"
 ```
 
 Day1 的完整答题与批改过程见：[Windows AD Practice Day1](/posts/springtsuki/notes/windowsad/practice/922/)。
+
+## 六、服务从 Kerberos 回退到 NTLM
+
+业务能够打开不代表正在使用 Kerberos。应用可能因为 SPN 缺失、重复、绑定错误、访问名称不匹配或客户端配置而回退到 NTLM。
+
+推荐检查链：
+
+```text
+访问名称与 DNS
+    ↓
+KDC 与 Kerberos SRV
+    ↓
+主动请求目标服务票据
+    ↓
+SPN 唯一所有者
+    ↓
+服务实际运行身份
+    ↓
+客户端票据与 KDC 事件
+    ↓
+修复后重新认证并验证协议
+```
+
+```powershell
+Resolve-DnsName testweb.qy.net
+Resolve-DnsName -Type SRV "_kerberos._tcp.qy.net"
+nltest /dsgetdc:qy.net /KDC /force
+
+klist get HTTP/testweb.qy.net
+
+setspn -F -Q HTTP/testweb.qy.net
+setspn -X -F
+setspn -L QY\svc_testweb
+
+w32tm /query /status
+klist
+```
+
+修复后，应同时确认客户端出现目标服务票据、DC 记录成功的 4769、对应访问不再持续产生 4776，并且 SPN 属于服务实际使用的账户。`klist get` 成功只证明 KDC 能签发票据，不能单独证明服务端可以解密、应用已经使用票据或 ACL 已授权。
+
+Day2 的完整答题与批改过程见：[Windows AD Practice Day2](/posts/springtsuki/notes/windowsad/practice/923/)。
 
 # 待研究课题
 
@@ -388,4 +437,4 @@ Day1 的完整答题与批改过程见：[Windows AD Practice Day1](/posts/sprin
 
 ---
 
-每日训练入口：[Windows AD Practice Day1](/posts/springtsuki/notes/windowsad/practice/922/)
+每日训练入口：[Day1](/posts/springtsuki/notes/windowsad/practice/922/) · [Day2](/posts/springtsuki/notes/windowsad/practice/923/)
