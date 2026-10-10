@@ -60,8 +60,9 @@ export default defineConfig({
 	trailingSlash: "always",
 
 	redirects: {
-		"/posts/springtsuki/notes/windowsad/917/": "/posts/springtsuki/notes/windowsad/backups/109-backups/",
-		"/posts/springtsuki/notes/windowsad/quest/917-backups/": "/posts/springtsuki/notes/windowsad/backups/109-backups/",
+		"/posts/springtsuki/notes/windowsad/917/": "/posts/springtsuki/notes/windowsad/labs/backups/109-backups/",
+		"/posts/springtsuki/notes/windowsad/quest/917-backups/": "/posts/springtsuki/notes/windowsad/labs/backups/109-backups/",
+		"/posts/springtsuki/notes/windowsad/backups/109-backups/": "/posts/springtsuki/notes/windowsad/labs/backups/109-backups/",
 	},
 	// 字体配置 - 只加载实际使用的字体，跳过未引用的以加快构建
 	fonts: (() => {
