@@ -1,0 +1,29 @@
+01 安装 Docker Engine 和 Compose
+- [ ] 在 Ubuntu 练习机上，按官方文档安装 Docker Engine、Buildx 和 Compose 插件。 Ubuntu 安装指南
+- [ ] 执行 docker version，确认能看到 Client 和 Server。执行 docker compose version，确认 Compose 可用。
+- [ ] 执行 docker run --rm hello-world。如果失败，先区分是连不上 Docker daemon，还是 daemon 拉不下镜像。前者看 systemctl status docker，后者再查 DNS 和仓库连通性。
+02 找回容器操作手感
+- [ ] 用 Nginx 镜像启动一个命名容器，发布端口，从宿主机用 curl 验证。练一遍 stop → start → rm，观察容器状态。
+- [ ] 练 docker ps -a、`logs`、`inspect` 和 exec，分别看状态、日志、退出码和容器内部环境。
+- [ ] 故意让一个容器启动后报错退出。先保留现场，再用日志和退出码说清楚它为什么退出。
+03 从头写 Minishop 的 Dockerfile
+- [ ] 写一份 Django 镜像的 Dockerfile，过一遍 FROM、`WORKDIR`、`COPY`、`RUN` 和 CMD。如果用了启动脚本，再练 ENTRYPOINT 怎么接收参数。
+- [ ] 加 .dockerignore，先复制依赖清单并安装，再复制源码。只改一行源码后重新构建，确认依赖安装层还能命中缓存。
+- [ ] 构建出带版本标签的镜像，确认容器能启动、Django 进程能监听。需要数据库的页面留到第 06 项一起验收。
+04 练容器网络和端口排障
+- [ ] 把 Django 和 MySQL 接到同一个自定义网络，让 Django 通过数据库容器名和 3306 端口连接。
+- [ ] 故意让 Django 只监听 127.0.0.1，重现「容器在跑，宿主机访问不到」。改回 0.0.0.0 后，用 curl 验证恢复。
+- [ ] 再故意写错数据库主机名。从应用容器内检查服务名解析和端口连通性，然后用 Django 的数据库连接验证修复。
+05 练挂载和数据持久化
+- [ ] 分别做一次源码绑定挂载和 MySQL 命名卷挂载，观察挂载后容器内对应路径的内容。
+- [ ] 写入一条测试数据，删除并重建 MySQL 容器，挂回同一个命名卷，确认数据还在。
+- [ ] 修改初始化 SQL，分别用已有卷和全新的测试卷启动，观察初始化脚本什么时候执行。
+06 用 Compose 从头部署 Minishop
+- [ ] 在 Compose 里定义 app 和 db，用 db:3306 配置数据库连接，给 Django 单独的数据库账号。
+- [ ] 加数据库健康检查，配置应用等待数据库就绪，再执行 Django 的 migrate。
+- [ ] 用 docker compose config --quiet 检查配置，再用 up --build -d 启动。通过 ps、`logs` 和页面访问确认部署成功。
+- [ ] 写一份最短启动说明，在新的测试环境里照着跑一遍，确认能完成初始化、迁移和页面访问。
+07 练镜像发布和回滚
+- [ ] 构建两个可区分的应用版本，分别打标签、推送，再从仓库拉取部署。
+- [ ] 从新版本切回旧版本，用页面或接口验证当前运行的版本。两个版本使用兼容的数据库结构。
+- [ ] 记录一次发布步骤和一次回滚步骤，后面迁 K8s 时可以沿用这两个镜像。
